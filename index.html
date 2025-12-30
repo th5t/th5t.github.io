@@ -3,59 +3,106 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>English → Japanese Translator</title>
+<title>FluentU-style Japanese Video Translator</title>
 <style>
   body { font-family: 'Inter', sans-serif; background: #f0f2f5; padding: 20px; }
   h1 { text-align: center; color: #1a73e8; }
-  #translator-container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-  input, button { padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
-  button { background: #1a73e8; color: #fff; border: none; cursor: pointer; font-weight: 600; }
-  button:hover { background: #1558b0; }
-  #output { margin-top: 20px; font-size: 18px; background: #eaf1fe; padding: 15px; border-radius: 12px; }
+  #video-container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  iframe { width: 100%; height: 450px; border-radius: 12px; border: none; }
+  #subtitle-container { margin-top: 15px; background: #f9f9f9; padding: 15px; border-radius: 12px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); display:flex; flex-wrap: wrap; gap:5px; }
+  .word { cursor: pointer; color: #1a73e8; padding: 2px 4px; border-radius: 4px; transition: background 0.2s; }
+  .word:hover { background: rgba(26, 115, 232, 0.1); }
+  #translation { margin-top: 15px; font-size: 18px; padding: 10px; background: #eaf1fe; border-radius: 12px; text-align: center; }
+  #videoID, #loadBtn { padding: 10px; font-size: 16px; }
+  #input-container { display: flex; gap: 10px; margin-bottom: 20px; }
+  #videoID { flex: 1; border-radius: 8px; border: 1px solid #ccc; }
+  #loadBtn { background: #1a73e8; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  #loadBtn:hover { background: #1558b0; }
 </style>
 </head>
 <body>
 
-<h1>English → Japanese Translator</h1>
+<h1>Japanese Video Word Translator</h1>
 
-<div id="translator-container">
-  <input type="text" id="englishInput" placeholder="Type English text here" style="width:70%;">
-  <button id="translateBtn">Translate</button>
-
-  <div id="output">
-    Translation will appear here
+<div id="video-container">
+  <div id="input-container">
+    <input type="text" id="videoID" placeholder="Put YouTube video ID here">
+    <button id="loadBtn">Load Video</button>
   </div>
+
+  <iframe id="youtube" src="" allowfullscreen></iframe>
+
+  <div id="subtitle-container"></div>
+
+  <div id="translation">Click a word to see translation</div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/wanakana@4.0.2/umd/wanakana.min.js"></script>
 <script>
-  // Dummy dictionary for demonstration
-  const dictionary = {
-    "hello": {jp: "こんにちは", romaji: "konnichiwa"},
-    "world": {jp: "世界", romaji: "sekai"},
-    "my": {jp: "私の", romaji: "watashi no"},
-    "name": {jp: "名前", romaji: "namae"},
-    "is": {jp: "です", romaji: "desu"}
-  };
+const videoInput = document.getElementById('videoID');
+const loadBtn = document.getElementById('loadBtn');
+const youtubeIframe = document.getElementById('youtube');
+const subtitleContainer = document.getElementById('subtitle-container');
+const translationDiv = document.getElementById('translation');
 
-  document.getElementById('translateBtn').addEventListener('click', () => {
-    const text = document.getElementById('englishInput').value.toLowerCase();
-    const words = text.split(" ");
-    let jpTranslation = "";
-    let romajiTranslation = "";
+// Simple Japanese -> English dictionary (extendable)
+const dictionary = {
+  "こんにちは": "Hello",
+  "世界": "World",
+  "私": "I/me",
+  "です": "(polite copula)"
+};
 
-    words.forEach(word => {
-      if(dictionary[word]){
-        jpTranslation += dictionary[word].jp + " ";
-        romajiTranslation += dictionary[word].romaji + " ";
-      } else {
-        jpTranslation += word + " ";
-        romajiTranslation += word + " ";
-      }
+// Fetch subtitles from YouTube using youtube-subtitles API
+async function fetchSubtitles(videoID){
+  try {
+    // Using an open API that fetches captions (you can self-host or replace)
+    const res = await fetch(`https://youtube-subtitle-api.vercel.app/api?videoID=${videoID}&lang=ja`);
+    const data = await res.json();
+    if(!data || !data.captions) return [];
+    return data.captions; // array of {start, duration, text}
+  } catch(err) {
+    console.error(err);
+    return [];
+  }
+}
+
+// Split Japanese sentence into words (basic: space split, extend with morphological parser later)
+function renderWords(japaneseText){
+  subtitleContainer.innerHTML = "";
+  japaneseText.split(/\s|(?=[、。])/).forEach(word => {
+    if(!word.trim()) return;
+    const span = document.createElement("span");
+    span.classList.add("word");
+    span.textContent = word;
+    span.addEventListener("click", () => {
+      const romaji = wanakana.toRomaji(word);
+      const en = dictionary[word] || "N/A";
+      translationDiv.innerHTML = `<strong>Japanese:</strong> ${word}<br>
+                                  <strong>Romaji:</strong> ${romaji}<br>
+                                  <strong>English:</strong> ${en}`;
     });
-
-    document.getElementById('output').innerHTML = `<strong>Japanese:</strong> ${jpTranslation}<br>
-                                                   <strong>Romaji:</strong> ${romajiTranslation}`;
+    subtitleContainer.appendChild(span);
   });
+}
+
+// Load video and subtitles
+loadBtn.addEventListener('click', async () => {
+  const videoID = videoInput.value.trim();
+  if(!videoID) return alert("Enter a YouTube video ID");
+  youtubeIframe.src = `https://www.youtube.com/embed/${videoID}`;
+
+  subtitleContainer.innerHTML = "Loading subtitles...";
+  const captions = await fetchSubtitles(videoID);
+
+  if(captions.length === 0){
+    subtitleContainer.innerHTML = "No Japanese subtitles found.";
+    return;
+  }
+
+  // Show first caption's words as example
+  renderWords(captions[0].text);
+});
 </script>
 
 </body>
