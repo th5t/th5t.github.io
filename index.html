@@ -3,81 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Japanese Video Translator</title>
+<title>English → Japanese Translator</title>
 <style>
   body { font-family: 'Inter', sans-serif; background: #f0f2f5; padding: 20px; }
   h1 { text-align: center; color: #1a73e8; }
-  #video-container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-  iframe { width: 100%; height: 450px; border-radius: 12px; border: none; }
-  #subtitle-container { margin-top: 15px; background: #f9f9f9; padding: 15px; border-radius: 12px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); }
-  .word { cursor: pointer; color: #1a73e8; margin: 0 5px; padding: 2px 4px; border-radius: 4px; transition: background 0.2s; }
-  .word:hover { background: rgba(26, 115, 232, 0.1); }
-  #translation { margin-top: 15px; font-size: 18px; padding: 10px; background: #eaf1fe; border-radius: 12px; text-align: center; }
-  #videoID, #loadBtn { padding: 10px; font-size: 16px; }
-  #input-container { display: flex; gap: 10px; margin-bottom: 20px; }
-  #videoID { flex: 1; border-radius: 8px; border: 1px solid #ccc; }
-  #loadBtn { background: #1a73e8; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
-  #loadBtn:hover { background: #1558b0; }
+  #translator-container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  input, button { padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc; }
+  button { background: #1a73e8; color: #fff; border: none; cursor: pointer; font-weight: 600; }
+  button:hover { background: #1558b0; }
+  #output { margin-top: 20px; font-size: 18px; background: #eaf1fe; padding: 15px; border-radius: 12px; }
 </style>
 </head>
 <body>
 
-<h1>Japanese Video Translator</h1>
+<h1>English → Japanese Translator</h1>
 
-<div id="video-container">
-  <div id="input-container">
-    <input type="text" id="videoID" placeholder="Put YouTube video ID here">
-    <button id="loadBtn">Load Video</button>
+<div id="translator-container">
+  <input type="text" id="englishInput" placeholder="Type English text here" style="width:70%;">
+  <button id="translateBtn">Translate</button>
+
+  <div id="output">
+    Translation will appear here
   </div>
-
-  <iframe id="youtube" src="" allowfullscreen></iframe>
-
-  <div id="subtitle-container"></div>
-
-  <div id="translation">Click a word to see translation</div>
 </div>
 
 <script>
-  const videoInput = document.getElementById('videoID');
-  const loadBtn = document.getElementById('loadBtn');
-  const youtubeIframe = document.getElementById('youtube');
-  const subtitleContainer = document.getElementById('subtitle-container');
-  const translationDiv = document.getElementById('translation');
-
-  // Dummy dictionary for demo
+  // Dummy dictionary for demonstration
   const dictionary = {
-    "こんにちは": {romaji: "konnichiwa", en: "Hello"},
-    "世界": {romaji: "sekai", en: "World"},
-    "私": {romaji: "watashi", en: "I/me"},
-    "です": {romaji: "desu", en: "(polite copula)"}
+    "hello": {jp: "こんにちは", romaji: "konnichiwa"},
+    "world": {jp: "世界", romaji: "sekai"},
+    "my": {jp: "私の", romaji: "watashi no"},
+    "name": {jp: "名前", romaji: "namae"},
+    "is": {jp: "です", romaji: "desu"}
   };
 
-  // Load video dynamically
-  loadBtn.addEventListener('click', () => {
-    const videoID = videoInput.value.trim();
-    if(videoID){
-      youtubeIframe.src = `https://www.youtube.com/embed/${videoID}`;
-      loadSubtitlesDemo(); // For demo purposes
-    }
-  });
+  document.getElementById('translateBtn').addEventListener('click', () => {
+    const text = document.getElementById('englishInput').value.toLowerCase();
+    const words = text.split(" ");
+    let jpTranslation = "";
+    let romajiTranslation = "";
 
-  // Demo subtitle parser (replace with real subtitles later)
-  function loadSubtitlesDemo() {
-    const japaneseText = "こんにちは 世界 私 です";
-    subtitleContainer.innerHTML = "";
-    japaneseText.split(" ").forEach(word => {
-      const span = document.createElement("span");
-      span.classList.add("word");
-      span.textContent = word;
-      span.addEventListener("click", () => {
-        const info = dictionary[word] || {romaji: "N/A", en: "N/A"};
-        translationDiv.innerHTML = `<strong>Japanese:</strong> ${word}<br>
-                                    <strong>Romaji:</strong> ${info.romaji}<br>
-                                    <strong>English:</strong> ${info.en}`;
-      });
-      subtitleContainer.appendChild(span);
+    words.forEach(word => {
+      if(dictionary[word]){
+        jpTranslation += dictionary[word].jp + " ";
+        romajiTranslation += dictionary[word].romaji + " ";
+      } else {
+        jpTranslation += word + " ";
+        romajiTranslation += word + " ";
+      }
     });
-  }
+
+    document.getElementById('output').innerHTML = `<strong>Japanese:</strong> ${jpTranslation}<br>
+                                                   <strong>Romaji:</strong> ${romajiTranslation}`;
+  });
 </script>
 
 </body>
