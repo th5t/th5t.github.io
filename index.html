@@ -3,147 +3,81 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Japanese YouTube Translator</title>
+<title>Japanese Video Translator</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
-
-  body {
-    font-family: 'Inter', sans-serif;
-    background: #f0f2f5;
-    color: #333;
-    margin: 0;
-    padding: 20px;
-  }
-
-  h1 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #1a73e8;
-  }
-
-  #video-container {
-    max-width: 800px;
-    margin: auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  }
-
-  iframe {
-    width: 100%;
-    height: 450px;
-    border-radius: 12px;
-    border: none;
-  }
-
-  #input-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-
-  #videoID {
-    flex: 1;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-  }
-
-  #loadBtn {
-    padding: 10px 20px;
-    background: #1a73e8;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-  }
-
-  #loadBtn:hover {
-    background: #1558b0;
-  }
-
-  #subtitle-container {
-    margin-top: 15px;
-    background: #f9f9f9;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
-  }
-
-  .word {
-    cursor: pointer;
-    color: #1a73e8;
-    margin: 0 5px;
-    padding: 2px 4px;
-    border-radius: 4px;
-    transition: background 0.2s;
-  }
-
-  .word:hover {
-    background: rgba(26, 115, 232, 0.1);
-  }
-
-  #translation {
-    margin-top: 15px;
-    font-size: 18px;
-    padding: 10px;
-    background: #eaf1fe;
-    border-radius: 12px;
-    text-align: center;
-  }
+  body { font-family: 'Inter', sans-serif; background: #f0f2f5; padding: 20px; }
+  h1 { text-align: center; color: #1a73e8; }
+  #video-container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  iframe { width: 100%; height: 450px; border-radius: 12px; border: none; }
+  #subtitle-container { margin-top: 15px; background: #f9f9f9; padding: 15px; border-radius: 12px; box-shadow: inset 0 0 5px rgba(0,0,0,0.05); }
+  .word { cursor: pointer; color: #1a73e8; margin: 0 5px; padding: 2px 4px; border-radius: 4px; transition: background 0.2s; }
+  .word:hover { background: rgba(26, 115, 232, 0.1); }
+  #translation { margin-top: 15px; font-size: 18px; padding: 10px; background: #eaf1fe; border-radius: 12px; text-align: center; }
+  #videoID, #loadBtn { padding: 10px; font-size: 16px; }
+  #input-container { display: flex; gap: 10px; margin-bottom: 20px; }
+  #videoID { flex: 1; border-radius: 8px; border: 1px solid #ccc; }
+  #loadBtn { background: #1a73e8; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+  #loadBtn:hover { background: #1558b0; }
 </style>
 </head>
 <body>
 
-<h1>Japanese YouTube Translator</h1>
+<h1>Japanese Video Translator</h1>
 
 <div id="video-container">
   <div id="input-container">
-    <input type="text" id="videoID" placeholder="Put video ID here (e.g., dQw4w9WgXcQ)">
+    <input type="text" id="videoID" placeholder="Put YouTube video ID here">
     <button id="loadBtn">Load Video</button>
   </div>
 
   <iframe id="youtube" src="" allowfullscreen></iframe>
 
-  <div id="subtitle-container">
-    <span class="word" data-jp="こんにちは" data-romaji="konnichiwa" data-en="Hello">こんにちは</span>
-    <span class="word" data-jp="世界" data-romaji="sekai" data-en="World">世界</span>
-  </div>
+  <div id="subtitle-container"></div>
 
-  <div id="translation">
-    Click on a word above to see translation
-  </div>
+  <div id="translation">Click a word to see translation</div>
 </div>
 
 <script>
-  const words = document.querySelectorAll('.word');
+  const videoInput = document.getElementById('videoID');
+  const loadBtn = document.getElementById('loadBtn');
+  const youtubeIframe = document.getElementById('youtube');
+  const subtitleContainer = document.getElementById('subtitle-container');
   const translationDiv = document.getElementById('translation');
 
-  words.forEach(word => {
-    word.addEventListener('click', () => {
-      const jp = word.dataset.jp;
-      const romaji = word.dataset.romaji;
-      const en = word.dataset.en;
-      translationDiv.innerHTML = `<strong>Japanese:</strong> ${jp} <br>
-                                  <strong>Romaji:</strong> ${romaji} <br>
-                                  <strong>English:</strong> ${en}`;
-    });
-  });
+  // Dummy dictionary for demo
+  const dictionary = {
+    "こんにちは": {romaji: "konnichiwa", en: "Hello"},
+    "世界": {romaji: "sekai", en: "World"},
+    "私": {romaji: "watashi", en: "I/me"},
+    "です": {romaji: "desu", en: "(polite copula)"}
+  };
 
-  // Load YouTube video dynamically
-  const loadBtn = document.getElementById('loadBtn');
-  const videoInput = document.getElementById('videoID');
-  const youtubeIframe = document.getElementById('youtube');
-
+  // Load video dynamically
   loadBtn.addEventListener('click', () => {
     const videoID = videoInput.value.trim();
-    if(videoID) {
+    if(videoID){
       youtubeIframe.src = `https://www.youtube.com/embed/${videoID}`;
+      loadSubtitlesDemo(); // For demo purposes
     }
   });
+
+  // Demo subtitle parser (replace with real subtitles later)
+  function loadSubtitlesDemo() {
+    const japaneseText = "こんにちは 世界 私 です";
+    subtitleContainer.innerHTML = "";
+    japaneseText.split(" ").forEach(word => {
+      const span = document.createElement("span");
+      span.classList.add("word");
+      span.textContent = word;
+      span.addEventListener("click", () => {
+        const info = dictionary[word] || {romaji: "N/A", en: "N/A"};
+        translationDiv.innerHTML = `<strong>Japanese:</strong> ${word}<br>
+                                    <strong>Romaji:</strong> ${info.romaji}<br>
+                                    <strong>English:</strong> ${info.en}`;
+      });
+      subtitleContainer.appendChild(span);
+    });
+  }
 </script>
 
 </body>
