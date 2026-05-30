@@ -1,0 +1,53 @@
+body {
+    margin: 0;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.ouroboros {
+    position: relative;
+    width: 400px;
+    height: 200px;
+}
+
+.loop {
+    position: absolute;
+    width: 180px;
+    height: 120px;
+    border: 18px solid #2ecc71;
+    border-radius: 50%;
+}
+
+.left {
+    left: 20px;
+    top: 40px;
+}
+
+.right {
+    right: 20px;
+    top: 40px;
+}
+
+.head {
+    position: absolute;
+    width: 36px;
+    height: 36px;
+    background: #27ae60;
+    border-radius: 50%;
+    top: 92px;
+    left: 180px;
+    transform: rotate(-25deg);
+}
+
+.eye {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+    top: 102px;
+    left: 203px;
+}
